@@ -1,0 +1,11 @@
+db:
+  name: 'todo'
+  host: 'localhost'
+  user: 'postgres'
+  password: '123'
+
+# dbhost: 'localhost'
+# dbname: 'todo'
+# dbuser: 'postgres'
+# dbpassword: '123'
+port: 1323
