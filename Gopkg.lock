@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/bakatz/echo-logrusmiddleware"
+  packages = ["."]
+  revision = "22613b9101eb5fa0aaa67139ec0fcd735357f118"
+
+[[projects]]
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
   revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
@@ -85,7 +91,7 @@
     "hstore",
     "oid"
   ]
-  revision = "b2004221932bd6b13167ef654c81cffac36f7537"
+  revision = "d34b9ff171c21ad295489235aec8b6626023cd04"
 
 [[projects]]
   name = "github.com/magiconair/properties"
@@ -118,13 +124,19 @@
   version = "v1.1.0"
 
 [[projects]]
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
+  version = "v1.0.5"
+
+[[projects]]
   name = "github.com/spf13/afero"
   packages = [
     ".",
     "mem"
   ]
-  revision = "bb8f1927f2a9d3ab41c9340aa034f6b803f4359c"
-  version = "v1.0.2"
+  revision = "63644898a8da0bc22138abf860edaf5277b6102e"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/spf13/cast"
@@ -192,9 +204,10 @@
   name = "golang.org/x/crypto"
   packages = [
     "acme",
-    "acme/autocert"
+    "acme/autocert",
+    "ssh/terminal"
   ]
-  revision = "88942b9c40a4c9d203b82b3731787b672d6e809b"
+  revision = "12892e8c234f4fe6f6803f052061de9057903bb2"
 
 [[projects]]
   branch = "master"
@@ -203,7 +216,7 @@
     "context",
     "context/ctxhttp"
   ]
-  revision = "6078986fec03a1dcc236c34816c71b0e05018fda"
+  revision = "b68f30494add4df6bd8ef5e82803f308e7f7c59c"
 
 [[projects]]
   branch = "master"
@@ -213,13 +226,16 @@
     "facebook",
     "internal"
   ]
-  revision = "fdc9e635145ae97e6c2cb777c48305600cf515cb"
+  revision = "921ae394b9430ed4fb549668d7b087601bd60a81"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix"]
-  revision = "91ee8cde435411ca3f1cd365e8f20131aed4d0a1"
+  packages = [
+    "unix",
+    "windows"
+  ]
+  revision = "378d26f46672a356c46195c28f61bdb4c0a781dd"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -251,12 +267,12 @@
 [[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "7f97868eec74b32b0982dd158a51a446d1da7eb5"
-  version = "v2.1.1"
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f091ae966d80a0ef13c52cf34af6e1593f43180cfd15ab078fb1e251f74c6980"
+  inputs-digest = "1e1b9cd7ea424835f93605da68b11615087f047161d6e78d0cd0ef5abf918109"
   solver-name = "gps-cdcl"
   solver-version = 1
