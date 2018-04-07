@@ -2,11 +2,9 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"strconv"
 
 	logrusmiddleware "github.com/bakatz/echo-logrusmiddleware"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/fsnotify/fsnotify"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -36,9 +34,24 @@ var (
 	jwtSigningKey    = "secret"
 )
 
+//TODO http://www.alexedwards.net/blog/organising-database-access
+//https://gist.github.com/elithrar/5aef354a54ba71a32e23
+//https://www.netlify.com/blog/2016/10/20/building-a-restful-api-in-go/
+//https://github.com/mingrammer/go-todo-rest-api-example/blob/master/app/handler/projects.go
+//https://stevenwhite.com/building-a-rest-service-with-golang-2/
+//https://www.netlify.com/blog/2016/10/20/building-a-restful-api-in-go/
 func main() {
 	initApp()
 	defer db.Close()
+
+	appContext := &handler.AppContext{
+		DB:               db,
+		OauthConf:        oauthConf,
+		OauthStateString: oauthStateString,
+		JwtSigningKey:    jwtSigningKey,
+	}
+
+	handler := &handler.Handler{appContext}
 
 	e := echo.New()
 	setupLogger(e)
@@ -50,19 +63,19 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Handlers
-	e.POST("/login", login)
-	e.POST("/login/facebook", facebookIndex)
-	e.GET("/auth/facebook", authFacebook)
+	e.POST("/login", handler.Login)
+	e.POST("/login/facebook", handler.FacebookIndex)
+	e.GET("/auth/facebook", handler.AuthFacebook)
 
 	g := e.Group("/tasks")
 	//waiting for merge of https://github.com/labstack/echo/pull/1041 as it will allow to return 403
 	g.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: []byte(jwtSigningKey),
 	}))
-	g.GET("/:id", getTask)
-	g.PATCH("/:id", updateTask)
-	g.POST("", createTask)
-	g.DELETE("/:id", deleteTask)
+	g.GET("/:id", handler.GetTask)
+	g.PATCH("/:id", handler.UpdateTask)
+	g.POST("", handler.CreateTask)
+	g.DELETE("/:id", handler.DeleteTask)
 	e.OPTIONS("/tasks", nil)
 
 	port := fmt.Sprintf(":%s", strconv.Itoa(viper.GetInt("port")))
@@ -137,39 +150,4 @@ func setupLogger(e *echo.Echo) {
 	e.Logger = logrusmiddleware.Logger{logrusLogger}
 	e.Use(logrusmiddleware.Hook())
 	e.Logger.SetLevel(log.INFO)
-}
-
-func login(c echo.Context) error {
-	return handler.Login(c, jwtSigningKey)
-}
-
-func facebookIndex(c echo.Context) error {
-	return handler.FacebookIndex(c, oauthConf, oauthStateString)
-}
-
-func authFacebook(c echo.Context) error {
-	return handler.AuthFacebook(c, oauthConf, oauthStateString, jwtSigningKey)
-}
-
-func restricted(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	return c.String(http.StatusOK, "Welcome "+name+"!")
-}
-
-func createTask(c echo.Context) error {
-	return handler.CreateTask(db, c)
-}
-
-func deleteTask(c echo.Context) error {
-	return handler.DeleteTask(db, c)
-}
-
-func getTask(c echo.Context) error {
-	return handler.GetTask(db, c)
-}
-
-func updateTask(c echo.Context) error {
-	return handler.UpdateTask(db, c)
 }

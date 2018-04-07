@@ -30,7 +30,7 @@ func createJTWToken(name string, jwtSigningKey string) (string, error) {
 	return t, nil
 }
 
-func Login(c echo.Context, jwtSigningKey string) error {
+func (h *Handler) Login(c echo.Context) error {
 	u := new(model.User)
 	if err := c.Bind(u); err != nil {
 		return echo.ErrUnauthorized
@@ -40,7 +40,7 @@ func Login(c echo.Context, jwtSigningKey string) error {
 		return echo.ErrUnauthorized
 	}
 
-	t, err := createJTWToken("jon", jwtSigningKey)
+	t, err := createJTWToken("jon", h.JwtSigningKey)
 	if err != nil {
 		return err
 	}
@@ -50,14 +50,14 @@ func Login(c echo.Context, jwtSigningKey string) error {
 	})
 }
 
-func AuthFacebook(c echo.Context, oauthConf *oauth2.Config, oauthStateString string, jwtSigningKey string) error {
+func (h *Handler) AuthFacebook(c echo.Context) error {
 	state := c.FormValue("state")
-	if state != oauthStateString {
+	if state != h.OauthStateString {
 		return c.JSON(http.StatusBadRequest, "invalid oauth state")
 	}
 
 	code := c.FormValue("code")
-	tok, err := oauthConf.Exchange(oauth2.NoContext, code)
+	tok, err := h.OauthConf.Exchange(oauth2.NoContext, code)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error)
 	}
@@ -75,7 +75,7 @@ func AuthFacebook(c echo.Context, oauthConf *oauth2.Config, oauthStateString str
 	res.DecodeField("first_name", &firstName)
 	//for demo only, server should not return access token
 	//return c.JSON(http.StatusCreated, tok.AccessToken)
-	t, err := createJTWToken(firstName, jwtSigningKey)
+	t, err := createJTWToken(firstName, h.JwtSigningKey)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,14 @@ func AuthFacebook(c echo.Context, oauthConf *oauth2.Config, oauthStateString str
 	})
 }
 
-func FacebookIndex(c echo.Context, oauthConf *oauth2.Config, oauthStateString string) error {
-	url := oauthConf.AuthCodeURL(oauthStateString, oauth2.AccessTypeOffline)
+func (h *Handler) FacebookIndex(c echo.Context) error {
+	url := h.OauthConf.AuthCodeURL(h.OauthStateString, oauth2.AccessTypeOffline)
 	return c.JSON(http.StatusOK, url)
 }
+
+// func restricted(c echo.Context) error {
+// 	user := c.Get("user").(*jwt.Token)
+// 	claims := user.Claims.(jwt.MapClaims)
+// 	name := claims["name"].(string)
+// 	return c.String(http.StatusOK, "Welcome "+name+"!")
+// }
